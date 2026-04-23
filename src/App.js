@@ -247,9 +247,13 @@ function ThinkingBubble({ skillIcon, skillColor }) {
 // ─── Main App ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeSkillId, setActiveSkillId] = useState('general');
-  const [histories, setHistories]         = useState(() =>
-    Object.fromEntries(SKILLS.map((s) => [s.id, []]))
-  );
+  const [histories, setHistories]         = useState(() => {
+    try {
+      const saved = localStorage.getItem('apex_histories');
+      if (saved) return JSON.parse(saved);
+    } catch (_) {}
+    return Object.fromEntries(SKILLS.map((s) => [s.id, []]));
+  });
   const [input, setInput]           = useState('');
   const [isLoading, setIsLoading]   = useState(false);
   const [isStreaming, setIsStreaming]= useState(false);
@@ -274,6 +278,10 @@ export default function App() {
     if (apiKey) localStorage.setItem('apex_api_key', apiKey);
     else localStorage.removeItem('apex_api_key');
   }, [apiKey]);
+  // -- Persist chat histories --
+  useEffect(() => {
+    try { localStorage.setItem('apex_histories', JSON.stringify(histories)); } catch (_) {}
+  }, [histories]);
 
   // ── Auto-resize textarea ─────────────────────────────────────────────────────
   useEffect(() => {

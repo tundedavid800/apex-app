@@ -175,7 +175,7 @@ const SKILLS = [
 
 const SKILL_MAP = Object.fromEntries(SKILLS.map((s) => [s.id, s]));
 
-const API_URL = 'https://api.anthropic.com/v1/messages';
+const API_URL = 'http://localhost:3001/api/chat';
 const MODEL   = 'claude-sonnet-4-20250514';
 
 // ─── Markdown-ish renderer (lightweight, no deps) ─────────────────────────────
@@ -342,7 +342,7 @@ export default function App() {
   const [isLoading, setIsLoading]   = useState(false);
   const [isStreaming, setIsStreaming]= useState(false);
   const [error, setError]           = useState('');
-  const [apiKey, setApiKey]         = useState(() => localStorage.getItem('apex_api_key') || '');
+  const [apiKey, setApiKey] = useState('');
   const [showKey, setShowKey]       = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -390,11 +390,6 @@ export default function App() {
   // ── Stream API call ──────────────────────────────────────────────────────────
   const sendMessage = useCallback(async (userText) => {
     if (!userText.trim()) return;
-    if (!apiKey.trim()) {
-      setError('Please enter your Anthropic API key in the sidebar to get started.');
-      return;
-    }
-
     const userMsg = { role: 'user', content: userText.trim() };
 
     setHistories((prev) => ({
@@ -418,10 +413,7 @@ export default function App() {
         method:  'POST',
         signal:  ctrl.signal,
         headers: {
-          'Content-Type':            'application/json',
-          'x-api-key':               apiKey.trim(),
-          'anthropic-version':       '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           model:      MODEL,
